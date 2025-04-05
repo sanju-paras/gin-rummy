@@ -87,25 +87,25 @@ export default function Game() {
                       value={player1Score[tabs[selected].id]}
                       onChange={(value) => setPlayer1Score({...player1Score, [tabs[selected].id]: Number(value)})}
                       label={player1 + " score"}
-                      autoComplete={"name"}
+                      autoComplete={"off"}
                   />
                   <TextField
                       value={player2Score[tabs[selected].id]}
                       onChange={(value) => setPlayer2Score({...player2Score, [tabs[selected].id]: Number(value)})}
                       label={player2 + " score"}
-                      autoComplete={"name"}
+                      autoComplete={"off"}
                   />
                   <TextField
                       value={player3Score[tabs[selected].id]}
                       onChange={(value) => setPlayer3Score({...player3Score, [tabs[selected].id]: Number(value)})}
                       label={player3 + " score"}
-                      autoComplete={"name"}
+                      autoComplete={"off"}
                   />
                   <TextField
                       value={player4Score[tabs[selected].id]}
                       onChange={(value) => setPlayer4Score({...player4Score, [tabs[selected].id]: Number(value)})}
                       label={player4 + " score"}
-                      autoComplete={"name"}
+                      autoComplete={"off"}
                   />
                     <LegacyStack vertical>
                       <Button
