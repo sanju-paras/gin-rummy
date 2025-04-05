@@ -1,4 +1,5 @@
 import styles from "./page.module.css";
+import Link from 'next/link'
 
 export default function Home() {
   return (
@@ -6,9 +7,9 @@ export default function Home() {
           <main className={styles.main}>
               <h1 className="text-2xl">Gin Rummy</h1>
             <p className="font-semibold">
-              <a href="/game"
+              <Link href="/game"
                  className="text-gray-950 underline decoration-sky-400 underline-offset-3 hover:decoration-2">
-                Start &rarr;</a>
+                Start &rarr;</Link>
             </p>
           </main>
           <footer className={styles.footer}>
