@@ -1,29 +1,44 @@
 import React from 'react';
 import enTranslations from '@shopify/polaris/locales/en.json';
-import {AppProvider, Box, TextField, Layout, LegacyCard, Page, Tabs, TextContainer, Link, LegacyStack,
-  Button,
-  Collapsible,} from '@shopify/polaris';
-import {useState, useCallback} from 'react';
+import {
+  AppProvider, Box, TextField, Layout, LegacyCard, Page, Tabs, TextContainer, LegacyStack,
+  Button, Collapsible, RangeSlider, Banner, InlineGrid
+} from '@shopify/polaris';
+import {useState, useCallback, useEffect} from 'react';
 import '@shopify/polaris/build/esm/styles.css';
+import {ChartVerticalFilledIcon} from "@shopify/polaris-icons";
+
+const defaultPlayerNames = (numPlayers) => {
+  const x = {};
+  for (let i = 0; i < numPlayers; i++) {
+    x[i] = `Player ${i + 1}`;
+  }
+  return x
+}
+
+const defaultPlayerScores = (numPlayers) => {
+  const x = {};
+  for (let i = 0; i < numPlayers; i++) {
+    x[i] = {};
+  }
+  return x
+}
 
 export default function Game() {
+  const [numPlayers, setNumPlayers] = useState(4);
 
-  const [player1, setPlayer1] = useState("Player 1");
-  const [player2, setPlayer2] = useState("Player 2");
-  const [player3, setPlayer3] = useState("Player 3");
-  const [player4, setPlayer4] = useState("Player 4");
-
-  const [player1Score, setPlayer1Score] = useState({});
-  const [player2Score, setPlayer2Score] = useState({});
-  const [player3Score, setPlayer3Score] = useState({});
-  const [player4Score, setPlayer4Score] = useState({});
-
+  const [playerNames, setPlayerNames] = useState(defaultPlayerNames(numPlayers));
   const [open, setOpen] = useState(false);
+  const [openNames, setOpenNames] = useState(true);
   const handleToggle = useCallback(() => setOpen((open) => !open), []);
+  const [playerScores, setPlayerScores] = useState(defaultPlayerScores(numPlayers));
 
+  useEffect(() => {
+    setPlayerNames(defaultPlayerNames(numPlayers))
+    setPlayerScores(defaultPlayerScores(numPlayers))
+  }, [numPlayers]);
 
   const [selected, setSelected] = useState(0);
-
   const handleTabChange = useCallback((selectedTabIndex) => setSelected(selectedTabIndex), [],);
 
   const tabs = [
@@ -38,43 +53,74 @@ export default function Game() {
         content: '7 cards',
         panelID: '7-cards',
       }, {
-      id: '8-cards',
-      title: '2 groups (3 cards with the same number)',
+      id: '8-cards', title: '2 runs (4 consecutive cards same suit)',
       content: '8 cards',
       panelID: '8-cards',
+    }, {
+      id: '9-cards',
+      title: '3 groups (3 cards with the same number)',
+      content: '9 cards',
+      panelID: '9-cards',
+    }, {
+      id: '10-cards',
+      title: '1 run (4 consecutive cards same suit) 2 groups (3 cards with the same number). Must go out on the full',
+      content: '10 cards',
+      panelID: '10-cards',
+    }, {
+      id: '11-cards',
+      title: '2 run (4 consecutive cards same suit) 1 groups (3 cards with the same number)',
+      content: '11 cards',
+      panelID: '11-cards',
+    }, {
+      id: '12-cards',
+      title: '3 run (4 consecutive cards same suit) OR 4 groups (3 cards with the same number)',
+      content: '12 cards',
+      panelID: '12-cards',
     },
   ];
   return <AppProvider i18n={enTranslations}>
     <Page fullWidth>
       <Layout>
         <Layout.Section variant="oneThird">
-          <Box maxWidth={'90%'}>
-            <LegacyCard sectioned title="Game setup">
-              <TextField
-                  value={player1}
-                  onChange={setPlayer1}
-                  label={"Player 1 name"}
-                  autoComplete={"off"}
-              />
-              <TextField
-                  value={player2}
-                  onChange={setPlayer2}
-                  label={"Player 2 name"}
-                  autoComplete={"off"}
-              />
-              <TextField
-                  value={player3}
-                  onChange={setPlayer3}
-                  label={"Player 3 name"}
-                  autoComplete={"off"}
-              />
-              <TextField
-                  value={player4}
-                  onChange={setPlayer4}
-                  label={"Player 4 name"}
-                  autoComplete={"off"}
-              />
 
+          <Box maxWidth={'90%'}>
+            <LegacyCard
+                sectioned
+                title={<InlineGrid columns="1fr auto">
+                      <span>Game setup</span>
+                  <Button
+                      variant="micro"
+                      disclosure={openNames ? 'up' : 'down'}
+                      onClick={() => setOpenNames((openNames) => !openNames)}
+                      ariaExpanded={openNames}
+                      ariaControls="basic-collapsible"><br/>
+                  </Button>
+                </InlineGrid>}
+            >
+
+              <Collapsible
+                  open={openNames}
+                  id="basic-collapsible"
+                  transition={{duration: '500ms', timingFunction: 'ease-in-out'}}
+                  expandOnPrint
+              >
+                <RangeSlider
+                    output
+                    label="Number of players"
+                    min={2}
+                    max={10}
+                    step={1}
+                    value={numPlayers}
+                    onChange={setNumPlayers}
+              />
+                {[...Array(numPlayers)].map((_, index) => (<TextField
+                    key={index}
+                    value={playerNames[index]}
+                    onChange={(value) => setPlayerNames({...playerNames, [index]: value})}
+                    label={`Player ${index + 1} name`}
+                  autoComplete={"off"}
+                />))}
+              </Collapsible>
             </LegacyCard>
           </Box>
         </Layout.Section>
@@ -82,38 +128,29 @@ export default function Game() {
           <Box maxWidth={'90%'}>
             <LegacyCard sectioned title="">
               <Tabs tabs={tabs} selected={selected} onSelect={handleTabChange}>
-                <LegacyCard.Section title={tabs[selected].title}>
+                <LegacyCard.Section
+                    title={<Banner onDismiss={() => {
+                    }}><p>{tabs[selected].title}</p></Banner>}
+                >
+                  {[...Array(numPlayers)].map((_, index) => (
                   <TextField
-                      value={player1Score[tabs[selected].id]}
-                      onChange={(value) => setPlayer1Score({...player1Score, [tabs[selected].id]: Number(value)})}
-                      label={player1 + " score"}
+                      key={index}
+                      value={playerScores[index] ? playerScores[index][tabs[selected].id] : ""}
+                      onChange={(value) => setPlayerScores({
+                        ...playerScores,
+                        [index]: {...playerScores[index], [tabs[selected].id]: Number(value)}
+                      })}
+                      label={playerNames[index] + " score"}
                       autoComplete={"off"}
-                  />
-                  <TextField
-                      value={player2Score[tabs[selected].id]}
-                      onChange={(value) => setPlayer2Score({...player2Score, [tabs[selected].id]: Number(value)})}
-                      label={player2 + " score"}
-                      autoComplete={"off"}
-                  />
-                  <TextField
-                      value={player3Score[tabs[selected].id]}
-                      onChange={(value) => setPlayer3Score({...player3Score, [tabs[selected].id]: Number(value)})}
-                      label={player3 + " score"}
-                      autoComplete={"off"}
-                  />
-                  <TextField
-                      value={player4Score[tabs[selected].id]}
-                      onChange={(value) => setPlayer4Score({...player4Score, [tabs[selected].id]: Number(value)})}
-                      label={player4 + " score"}
-                      autoComplete={"off"}
-                  />
+                  />))}
                     <LegacyStack vertical>
                       <Button
                           onClick={handleToggle}
                           ariaExpanded={open}
                           ariaControls="basic-collapsible"
-                      >
-                        Scores
+                          disclosure={open ? 'up' : 'down'}
+                          icon={<ChartVerticalFilledIcon/>}
+                      >Scores
                       </Button>
                       <Collapsible
                           open={open}
@@ -122,10 +159,11 @@ export default function Game() {
                           expandOnPrint
                       >
                         <TextContainer>
-                          <p>{player1} score: {Object.values(player1Score).reduce((accumulator, a) => accumulator + a, 0)}</p>
-                          <p>{player2} score: {Object.values(player2Score).reduce((accumulator, a) => accumulator + a, 0)}</p>
-                          <p>{player3} score: {Object.values(player3Score).reduce((accumulator, a) => accumulator + a, 0)}</p>
-                          <p>{player4} score: {Object.values(player4Score).reduce((accumulator, a) => accumulator + a, 0)}</p>
+                          {Object.entries(playerScores).map(([playerNameIndex, playerScore]) => (
+                              <p key={playerNameIndex}>
+                                {playerNames[playerNameIndex]} score: {Object.values(playerScore).reduce((accumaltor, curr) => accumaltor
+                                  + curr, 0)}
+                              </p>))}
                         </TextContainer>
                       </Collapsible>
                     </LegacyStack>
